@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByeMC Pirate Radio</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="flex maininfo">
+        <main>
+            <h1><span class="fnt-byefont">ByeMC</span> Pirate Radio</h1>
+            <h2>Listen</h2>
+            <p>We are streaming on a 256kbps MP3 stream & a 128kbps MP3 stream.</p>
+            <div class="picker">
+                <button class="active" id="256">256kbps</button>
+                <button id="128">128kbps</button>
+            </div>
+            <audio id="stream" class="stream" src="https://radio.nya.tf/listen/byemc_pirate_radio/radio.mp3" controls>
+                Your browser does not support the audio element.
+            </audio>
+            
+            <h2>Now Playing</h2>
+            
+            <div class="now_playing">
+                <img id="nowplaying_art" src="https://radio.nya.tf/public/byemc_pirate_radio/img/art.png" alt="Album Art">
+                <div class="info">
+                    <p class="title" id="nowplaying_title">Title</p>
+                    <p class="artist"  id="nowplaying_artist">Artist</p>
+                    <progress id="nowplaying_progress"></progress>
+                    <p id="np_times"><span id="elapsed">0:00</span> / <span id="duration">0:00</span></p>
+                </div>
+            </div>
+            <h2>Playing next</h2>
+            <div class="now_playing compact">
+                <img src="https://radio.nya.tf/public/byemc_pirate_radio/img/art.png" id="next_art" alt="Album Art">
+                <div class="info">
+                    <p class="title" id="next_title">Title</p>
+                    <p class="artist" id="next_artist">Artist</p>
+                </div>
+            </div>
+        </main>
+        <aside>
+
+            <h2>Song Requests</h2>
+            <iframe src="https://radio.nya.tf/public/byemc_pirate_radio/embed-requests?theme=dark" frameborder="0" allowtransparency="true" style="width: 100%; display: block; height: 100vh; border: 0;" title="ByeMC Pirate Radio Song Requests"></iframe>
+        </aside>
+    </div>
+
+    <script>
+
+            function formatTime(time) {
+                        let minutes = Math.floor(time / 60);
+                        let seconds = time % 60;
+                        if (seconds < 10) {
+                            seconds = "0" + seconds;
+                        }
+                        return minutes + ":" + seconds;
+                    }
+
+        function updateNowPlaying() {
+            fetch("https://radio.nya.tf/api/nowplaying/byemc_pirate_radio")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("nowplaying_art").src = data.now_playing.song.art;
+                    document.getElementById("nowplaying_artist").innerText = data.now_playing.song.artist;
+                    document.getElementById("nowplaying_title").innerText = data.now_playing.song.title;
+
+                    // Set progress bar
+                    let progress = document.getElementById("nowplaying_progress");
+                    let startTime = data.now_playing.played_at + 40;
+                    let endTime = startTime + data.now_playing.duration;
+                    let currentTime = Math.floor(Date.now() / 1000);
+                    let percent = (currentTime - startTime) / (endTime - startTime);
+                    progress.value = percent;
+                    progress.max = 1;
+
+                    // Set time
+                    let elapsed = document.getElementById("elapsed");
+                    let duration = document.getElementById("duration");
+                    elapsed.innerText = formatTime(currentTime - startTime) ; // seems to be 40 seconds off
+                    duration.innerText = formatTime(endTime - startTime);
+
+
+                    // Set next song
+                    document.getElementById("next_art").src = data.playing_next.song.art;
+                    document.getElementById("next_artist").innerText = data.playing_next.song.artist;
+                    document.getElementById("next_title").innerText = data.playing_next.song.title;
+                    
+
+                    // Update metadata
+                    updateMetadataInformation(data.now_playing.song.title, data.now_playing.song.artist, "ByeMC Pirate Radio", data.now_playing.song.art);
+            });
+        }
+
+        function incrementSongTimer(){
+            let elapsed = document.getElementById("elapsed");
+            let duration = document.getElementById("duration");
+            let currentTime = parseInt(elapsed.innerText.split(":")[0]) * 60 + parseInt(elapsed.innerText.split(":")[1]);
+            let endTime = parseInt(duration.innerText.split(":")[0]) * 60 + parseInt(duration.innerText.split(":")[1]);
+            elapsed.innerText = formatTime(currentTime + 1);
+            if (currentTime + 1 == endTime) {
+                updateNowPlaying();
+            }
+        }
+
+        let streams = {
+            "256": "https://radio.nya.tf/listen/byemc_pirate_radio/radio.mp3",
+            "128": "https://radio.nya.tf/listen/byemc_pirate_radio/low.mp3"
+        }
+
+        let button256 = document.getElementById("256");
+        let button128 = document.getElementById("128");
+
+        const stream = document.getElementById("stream"); // audio element
+
+        function playStream() {
+            stream.play();
+            navigator.mediaSession.playbackState = "playing";
+        }
+
+        function pauseStream() {
+            stream.pause();
+            navigator.mediaSession.playbackState = "paused";
+        }
+
+        function updateMetadataInformation(title, artist, album, art) {
+            // Uses the Media Session API. Tell the browser it's a live stream.
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: title,
+                    artist: artist,
+                    album: album,
+                    artwork: [
+                        { src: art, sizes: '512x512', type: 'image/jpeg' },
+                    ]
+                });
+                navigator.mediaSession.setActionHandler('play', playStream);
+                navigator.mediaSession.setActionHandler('pause', pauseStream);
+
+                navigator.mediaSession.playbackState = "playing";
+            
+            }
+        }
+
+        button256.addEventListener("click", () => {
+            button256.classList.add("active");
+            button128.classList.remove("active");
+            document.querySelector(".stream").src = streams["256"];
+        });
+
+        button128.addEventListener("click", () => {
+            button128.classList.add("active");
+            button256.classList.remove("active");
+            document.querySelector(".stream").src = streams["128"];
+        });
+
+
+
+        updateNowPlaying();
+        setInterval(updateNowPlaying, 5000);
+        setInterval(incrementSongTimer, 1000);
+
+    </script>
+</body>
+</html>
