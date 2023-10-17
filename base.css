@@ -2,6 +2,34 @@
     font-family: ByeFont;
     src: url('/assets/ByeFont.woff2');
 }
+@import url('https://fonts.bunny.net/css2?family=Rubik:wght@400;500&display=swap');
+
+:root {
+
+    --inner-chip-radius: 1em;
+
+    --chip-padding: .5rem;
+    --chip-radius: calc(var(--inner-chip-radius) + var(--chip-padding));
+
+    --section-padding: .5rem;
+    --section-radius: calc(var(--chip-radius) + var(--section-padding));
+
+    --wrapper-padding: .5rem;
+    --wrapper-radius: calc(var(--section-radius) + var(--wrapper-padding));
+
+}
+
+.hidden {
+    display: none;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex.space-between {
+    justify-content: space-between;
+}
 
 * {
     margin: 0;
@@ -9,117 +37,340 @@
     box-sizing: border-box;
 }
 
-html {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: black;
-    color: ghostwhite;
-
-    margin: 2rem;
-}
-
 .fnt-byefont {
     font-family: ByeFont;
 }
 
-button {
-    /* make buttons large and block */
-    height: 3rem;
+
+html {
+    color: #fff;
+    background-color: #252544;
+
+    font-family: "Rubik", sans-serif;
+}
+
+
+h1 {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+    margin-top: 0;
+}
+
+h2 {
     font-size: 1.5rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 0.5rem;
-    margin: 1rem;
-    padding: 0.5rem 1rem;
+    font-weight: 500;
+    margin: 0.5rem 0;
+    margin-top: 0;
 }
 
-button.active {
-    background-color: #00ff00;
-}
-
-.stream /* this is an audio element */ {
-    width: 100%;
-}
-
-.grid {
+body {
     display: grid;
 }
 
-.flex {
+#wrapper {
     display: flex;
-}
-
-.maininfo {
-    /* will be a flex */
-    gap: 1rem;
     flex-direction: row;
     justify-content: center;
+    gap: .5rem;
+    padding: var(--wrapper-padding);
+    background-color: #2d2d50;
+    border-radius: var(--wrapper-radius);
+
+    margin: 1rem auto;
+    width: 90vw;
+
+    flex-wrap: wrap;
 }
 
-.maininfo main {
-    max-width: 1000px;
+.np-info .progress {
+    display:flex;
+    flex-direction: row;
+    gap: .2rem;
+}
+
+
+header {
+    border-radius: var(--section-radius);
+    padding: calc(var(--section-padding) + 1rem);
+    flex: 1 1 300px;
+
+    background-color: #34345f;
+}
+
+header audio {
     width: 100%;
 }
 
-.maininfo aside {
-    max-width: 500px;
-    margin: auto;
-    margin-top: 1rem;
-    width: 100%;
+
+::-webkit-scrollbar {
+    width: 1px;
 }
 
-.now_playing {
+main {
+
+    flex: 1 0 700px;
+
     display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
     gap: 1rem;
+
+    background-color: #34345f;
+    border-radius: var(--section-radius);
+    padding: var(--section-padding);
+
+    height: 100%;
+    max-height: calc(100vh - 3rem);
+
+    overflow-y: scroll;
 }
 
-.now_playing img {
-    width: 256px;
-    height: 256px;
+.chip {
+    display: flex;
+    flex-direction: row;
+
+    background-color: #4d4d86;
+    border-radius: var(--chip-radius);
+
+    padding: var(--chip-padding);
 }
 
-.now_playing.compact img {
-    width: 128px;
-    height: 128px;
+.chip .np-art {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--inner-chip-radius);
+    margin-right: 1rem;
 }
 
-.now_playing .info {
+.chip.compact .np-art {
+    width: 100px;
+    height: 100px;
+}
+
+.chip .np-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.now_playing .info .title {
-    font-size: 1.5rem;
-    font-weight: bold;
+.chip.no-background {
+    background-color: unset;
 }
 
-.now_playing.compact .info .title {
+.np-info .subtitle {
     font-size: 1rem;
+    opacity: 0.8;
 }
 
-@media screen and (max-width: 1000px) {
-    .maininfo {
+.np-info .title {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+
+.chip.compact .np-info .title {
+    font-size: 1.5rem;
+}
+
+.np-info .artist {
+    font-size: 1rem;
+    opacity: unset;
+}
+
+.lyrics #wrapper main .playingnext {
+    transition: height 0.5s ease-in-out;
+    height: 115px;
+}
+
+.lyrics #wrapper main .playingnext.hidden {
+    height: 0;
+    overflow: clip;
+}
+
+.lyrics #wrapper main .playingnext.actuallyhidden {
+    display: none;
+}
+
+.lyrics #wrapper main {
+    justify-content: space-between;
+}
+
+#lyrics {
+    display: none;
+    overflow-y: scroll;
+
+    font-size: 1.4rem;
+    line-height: 2rem;
+    padding: 1rem;
+    border-radius: var(--chip-radius);
+}
+
+.lyrics #wrapper main #lyrics {
+    display: block;
+
+    /* preserve newlines */
+    white-space: pre;
+}
+
+#history {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+aside {
+    border-radius: var(--section-radius);
+    flex: 1 1 300px;
+    padding: 1rem;
+    
+    background-color: #34345f;
+}
+
+/* make the iframe in the aside responsive */
+aside iframe {
+    width: 100%;
+    height: 100%;
+}
+
+#controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+}
+
+#controls button {
+    background-color: #4d4d86;
+    border-radius: var(--chip-radius);
+    padding: var(--chip-padding);
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
+    flex: 1;
+    width: 100%;
+}
+
+#controls button:hover {
+    background-color: #5e5ea3;
+}
+
+#settings .decider {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+button {
+    background-color: #4d4d86;
+    border-radius: var(--chip-radius);
+    padding: var(--chip-padding);
+    border: none;
+    color: #fff;
+
+    flex: 1;
+
+    transition: background-color 0.2s ease-in-out;
+}
+
+button.darkbkg {
+    background-color: #2d2d50;
+}
+
+button:hover {
+    background-color: #5e5ea3;
+}
+
+
+button#play-pause:hover {
+    background-color: #5e5ea3;
+}
+
+button.active {
+    background-color: rgb(82, 156, 92);
+}
+
+@media screen and (max-width: 700px) {
+    #wrapper {
         flex-direction: column;
+        justify-content: flex-start;
+        margin: 1rem auto;
+        width: 90vw;
+        flex-wrap: nowrap;
     }
 
-    .now_playing {
+    header {
+        flex: unset;
+    }
+
+    main {
+        height: 100%;
+        max-height: unset;
+        flex: unset;
+        overflow-y: unset;
+    } 
+
+    .chip {
         flex-direction: column;
-    }
-
-    .now_playing img {
-        width: 100%;
-        height: auto;
-    }
-
-    .now_playing .info {
-        margin-top: 1rem;
-        /* center */
         align-items: center;
+        gap: 1rem;
     }
 
-    .now_playing.compact img {
+    .chip.compact {
+        flex-direction: row;
+    }
+
+    .chip .np-art {
         width: 100%;
-        height: auto;
+        height: unset;
+        margin-right: unset;
+    }
+
+    .np-info {
+        text-align: center;
+        padding-bottom: .1rem;
+    }
+
+    .chip.compact .np-info {
+        padding-bottom: unset;
+    }
+
+    .chip.compact .np-info {
+        text-align: unset;
+    }
+
+    .chip.compact .np-info .title {
+        /* only show 2 lines */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+    }
+
+    .np-info .title {
+        font-size: 1.5rem;
+    }
+
+    .np-info .progress {
+        justify-self: center !important;
+        margin: 1rem auto;
+    }
+
+    aside {
+        /* allow it to take as much space as it needs */
+        flex: unset;
+        height: 100%;
+    }
+
+    aside iframe {
+        width: 100%;
+        height: 100%;
+        min-height: 850px;
     }
 }
-

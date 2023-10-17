@@ -3,164 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ByeMC Pirate Radio</title>
-    <link rel="stylesheet" href="base.css">
+    <title>byemc pirate radio</title>
+    <link rel="stylesheet" href="/assets/fa/css/all.min.css">
+    <link rel="stylesheet" href="base.css" />
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="icon" type="image/svg+xml" href="https://byemc.xyz/favicon.svg">
 </head>
 <body>
-    <div class="flex maininfo">
-        <main>
-            <h1><span class="fnt-byefont">ByeMC</span> Pirate Radio</h1>
-            <h2>Listen</h2>
-            <p>We are streaming on a 256kbps MP3 stream & a 128kbps MP3 stream.</p>
-            <div class="picker">
-                <button class="active" id="256">256kbps</button>
-                <button id="128">128kbps</button>
-            </div>
-            <audio id="stream" class="stream" src="https://radio.nya.tf/listen/byemc_pirate_radio/radio.mp3" controls>
-                Your browser does not support the audio element.
+    <div id="wrapper">
+        <header>
+            <h1 id="title"><span class="fnt-byefont">ByeMC</span> Pirate Radio</h1>
+            <p id="description">anime music i think</p>
+            <audio id="audio">
+                <source src="https://radio.nya.tf/listen/byemc_pirate_radio/radio.mp3" type="audio/mpeg" />
+                Your browser does not support the audio element. Please listen directly.
             </audio>
-            
-            <h2>Now Playing</h2>
-            
-            <div class="now_playing">
-                <img id="nowplaying_art" src="https://radio.nya.tf/public/byemc_pirate_radio/img/art.png" alt="Album Art">
-                <div class="info">
-                    <p class="title" id="nowplaying_title">Title</p>
-                    <p class="artist"  id="nowplaying_artist">Artist</p>
-                    <progress id="nowplaying_progress"></progress>
-                    <p id="np_times"><span id="elapsed">0:00</span> / <span id="duration">0:00</span></p>
+
+            <div id="controls">
+                <p><button id="play-pause"><span class="icon fa-solid fa-play"></span><span class="hidden">Play / Pause</span></button></p>
+                <p><input type="range" min="0" max="100" value="100" name="volume" id="volume"> <label for="volume"><input style="width: 50px;" value="50" type="number" name="volume_manual" id="volume_manual" />%</label></p>
+            </div>
+
+            <div id="settings">
+                <div id="bitrate" class="decider">
+                    Loading...
+                </div>
+                <div class="debug_info">
+                    <p id="buffer_length"></p>
+                    <p id="session_length"></p>
+                </div>
+                <div id="change_view">
+                    <button id="change_view_button"><span class="icon fa-solid fa-arrow-right fa-fw"></span>Open lyrics view</button>
+                </div>
+                <div id="tuner">
+                    <h2>Tuner</h2>
+                    <div class="chip compact" id="newstation">
+                        <img src="https://radio.nya.tf/static/img/generic_song.jpg" id="newstationart" class="np-art" alt="Station Art" />
+                        <div class="np-info">
+                            <span class="subtitle">New Station</span>
+                            <!-- inputs -->
+                            <input type="text" id="newstationserver" placeholder="Azuracast server" />
+                            <input type="text" id="newstationslug" placeholder="Stub / short name" />
+                            <button id="addnewstation" class="darkbkg" style="flex: unset;"><i class="fa-fw fa-solid fa-plus-circle"></i> Add</button>
+                        </div>
+                    </div>
+                    <!-- List of stations saved in localstorage. -->
+                    <div id="setstation"></div>
                 </div>
             </div>
-            <h2>Playing next</h2>
-            <div class="now_playing compact">
-                <img src="https://radio.nya.tf/public/byemc_pirate_radio/img/art.png" id="next_art" alt="Album Art">
-                <div class="info">
-                    <p class="title" id="next_title">Title</p>
-                    <p class="artist" id="next_artist">Artist</p>
+
+        </header>
+        <main>
+            <div id="nowplaying" class="chip nowplaying">
+                <img class="np-art" id="now_art" src="https://radio.nya.tf/static/img/generic_song.jpg" alt="Now Playing" />
+                <div class="np-info">
+                    <span class="subtitle">Now Playing</span>
+                    <span class="title" id="now_title">Title</span>
+                    <span class="subtitle artist" id="now_artist">Artist</span>
+                    <span class="progress" id="now_progress"><span id="now_elapsed">0:00</span><progress value="0" id="now_progress_bar"></progress><span id="now_duration">0:00</span></span>
                 </div>
+            </div>
+
+            <div id="lyrics"></div>
+
+            <div class="chip compact playingnext no-background">
+                <img class="np-art" id="next_art" src="https://radio.nya.tf/static/img/generic_song.jpg" alt="Now Playing" />
+                <div class="np-info">
+                    <span class="subtitle">Playing Next</span>
+                    <span class="title" id="next_title">Title</span>
+                    <div class="moredata"><span class="subtitle artist" id="next_artist">Artist</span> • Playing <time id="next_until">unknown</time></div>
+                </div>
+            </div>
+
+            <div id="history">
+                <h2 style="margin: 0" class="hidewhenlyrics">History</h2>
+                <!-- Will contain chips with songs already played. -->
             </div>
         </main>
+    
         <aside>
-
-            <h2>Song Requests</h2>
-            <iframe src="https://radio.nya.tf/public/byemc_pirate_radio/embed-requests?theme=dark" frameborder="0" allowtransparency="true" style="width: 100%; display: block; height: 100vh; border: 0;" title="ByeMC Pirate Radio Song Requests"></iframe>
+            <iframe id="requests" src="https://radio.nya.tf/public/byemc_pirate_radio/embed-requests?theme=dark" frameborder="0" allowtransparency="true" style="border: 0;"></iframe>
         </aside>
     </div>
 
-    <script>
-
-            function formatTime(time) {
-                        let minutes = Math.floor(time / 60);
-                        let seconds = time % 60;
-                        if (seconds < 10) {
-                            seconds = "0" + seconds;
-                        }
-                        return minutes + ":" + seconds;
-                    }
-
-        function updateNowPlaying() {
-            fetch("https://radio.nya.tf/api/nowplaying/byemc_pirate_radio")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("nowplaying_art").src = data.now_playing.song.art;
-                    document.getElementById("nowplaying_artist").innerText = data.now_playing.song.artist;
-                    document.getElementById("nowplaying_title").innerText = data.now_playing.song.title;
-
-                    // Set progress bar
-                    let progress = document.getElementById("nowplaying_progress");
-                    let startTime = data.now_playing.played_at + 40;
-                    let endTime = startTime + data.now_playing.duration;
-                    let currentTime = Math.floor(Date.now() / 1000);
-                    let percent = (currentTime - startTime) / (endTime - startTime);
-                    progress.value = percent;
-                    progress.max = 1;
-
-                    // Set time
-                    let elapsed = document.getElementById("elapsed");
-                    let duration = document.getElementById("duration");
-                    elapsed.innerText = formatTime(currentTime - startTime) ; // seems to be 40 seconds off
-                    duration.innerText = formatTime(endTime - startTime);
-
-
-                    // Set next song
-                    document.getElementById("next_art").src = data.playing_next.song.art;
-                    document.getElementById("next_artist").innerText = data.playing_next.song.artist;
-                    document.getElementById("next_title").innerText = data.playing_next.song.title;
-                    
-
-                    // Update metadata
-                    updateMetadataInformation(data.now_playing.song.title, data.now_playing.song.artist, "ByeMC Pirate Radio", data.now_playing.song.art);
-            });
-        }
-
-        function incrementSongTimer(){
-            let elapsed = document.getElementById("elapsed");
-            let duration = document.getElementById("duration");
-            let currentTime = parseInt(elapsed.innerText.split(":")[0]) * 60 + parseInt(elapsed.innerText.split(":")[1]);
-            let endTime = parseInt(duration.innerText.split(":")[0]) * 60 + parseInt(duration.innerText.split(":")[1]);
-            elapsed.innerText = formatTime(currentTime + 1);
-            if (currentTime + 1 == endTime) {
-                updateNowPlaying();
-            }
-        }
-
-        let streams = {
-            "256": "https://radio.nya.tf/listen/byemc_pirate_radio/radio.mp3",
-            "128": "https://radio.nya.tf/listen/byemc_pirate_radio/low.mp3"
-        }
-
-        let button256 = document.getElementById("256");
-        let button128 = document.getElementById("128");
-
-        const stream = document.getElementById("stream"); // audio element
-
-        function playStream() {
-            stream.play();
-            navigator.mediaSession.playbackState = "playing";
-        }
-
-        function pauseStream() {
-            stream.pause();
-            navigator.mediaSession.playbackState = "paused";
-        }
-
-        function updateMetadataInformation(title, artist, album, art) {
-            // Uses the Media Session API. Tell the browser it's a live stream.
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: title,
-                    artist: artist,
-                    album: album,
-                    artwork: [
-                        { src: art, sizes: '512x512', type: 'image/jpeg' },
-                    ]
-                });
-                navigator.mediaSession.setActionHandler('play', playStream);
-                navigator.mediaSession.setActionHandler('pause', pauseStream);
-
-                navigator.mediaSession.playbackState = "playing";
-            
-            }
-        }
-
-        button256.addEventListener("click", () => {
-            button256.classList.add("active");
-            button128.classList.remove("active");
-            document.querySelector(".stream").src = streams["256"];
-        });
-
-        button128.addEventListener("click", () => {
-            button128.classList.add("active");
-            button256.classList.remove("active");
-            document.querySelector(".stream").src = streams["128"];
-        });
-
-
-
-        updateNowPlaying();
-        setInterval(updateNowPlaying, 5000);
-        setInterval(incrementSongTimer, 1000);
-
-    </script>
+    <script src="/spaghetticode.js"></script>
 </body>
 </html>
