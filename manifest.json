@@ -1,10 +1,10 @@
 {
-    "name": "ByeMC Pirate Radio",
-    "short_name": "Pirate Radio",
+    "name": "radio player",
+    "short_name": "radio player",
     "display": "standalone",
     "id": "xyz.byemc.radio.pirate",
     "version": "1.0.0",
-    "theme_color": "#252544",
+    "theme_color": "#77b19d",
     "icons": [{
         "src": "/assets/icon-300.png",
         "sizes": "300x300",

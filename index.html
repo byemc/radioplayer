@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>radio player</title>
+    <link rel="icon" type="image/svg+xml" href="https://byemc.xyz/favicon.svg">
+    <link rel="stylesheet" href="/base.css">
+    <script src="/scripts/icecast-metadata-stats.js"></script>
+</head>
+<body>
+    <header>
+        <h1>radio player</h1>
+        <p>by <a href="https://byemc.xyz">byemc</a></p>
+        <p class="end"><a class="button" rel="noopener external" target="_blank" href="https://byemc.xyz/donate"><i class="fa-fw fa-solid fa-sack-dollar"></i> donate</a></p>
+    </header>
+    <div id="wrapper">
+        <div id="tuner">
+            <div class="player">
+                <audio id="player">
+                    <source id="stream">
+                    Your browser does not support the audio element. Please upgrade your browser.
+                </audio>
+
+                <div class="buttons" id="controller">
+                    <button id="play-pause"><i class="fa-fw fa-solid fa-play" aria-label="Play" title="Play"></i></button>
+                    <button id="toggle-mute"><i class="fa-fw fa-solid fa-volume-high" aria-label="Mute" title="Mute"></i></button>
+                    <input type="number" id="precise-volume" min="0" max="100" step="1" value="100" aria-label="Volume" />
+                    <input type="range" name="volume" id="volume" min="0" max="1" step="0.01" value="1" aria-label="Volume" />
+                </div>
+
+                <div id="sources" class="sources buttons">
+                </div>
+            </div>
+
+            <div id="current">
+                <h2 id="station-name">Not tuned</h2>
+                <div id="station-info">Use the tuner below to listen!</div>
+            </div>
+            <div id="selector">
+                <div class="inputs">
+
+                    <h3>Tuner</h3>
+
+                    <label for="stream_type">Stream type</label>
+                    <select name="stream_type" id="stream_type">
+                        <option value="url">URL</option>
+                        <option value="azuracast">AzuraCast</option>
+                    </select>
+
+                    <div class="options">
+                        <label for="stream_title">Stream Title</label>
+                        <input type="text" id="stream_title" placeholder="Station Name" />
+                        <label for="stream_url">Stream URL</label>
+                        <input type="text" id="stream_url" placeholder="Station URL" />
+                        <label for="stream_server">Server</label>
+                        <input type="text" id="stream_server" disabled placeholder="Azuracast server" /> <!-- only applicable in azuracast -->
+                        <label for="stream_stub">Stub</label>
+                        <input type="text" id="stream_stub" disabled placeholder="Station stub/shortname" /> <!-- only applicable in azuracast -->    
+                    </div>
+
+                    <div class="buttons" style="margin: .5rem auto;">
+
+                        <button type="submit" id="stream_tune"><i class="fa-fw fa-solid fa-radio"></i> Tune</button>
+                        <button id="stream_add"><i class="fa-fw fa-solid fa-add"></i> Add</button>
+                    </div>
+
+                    <details open>
+                        <summary><h3 style="display: inline-block;">Presets</h3></summary>
+                        <div id="tunerlist">
+                            <!-- This is where the search results from the azuracast server will be -->
+                            <div class="chip">No presets yet :&lpar;</div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+        <main>
+            <div id="now-playing" class="chip song">
+                <img src="/assets/icon-300.png" alt="" id="now-art" />
+                <div class="info">
+                    <span class="subtitle">Now playing:</span>
+                    <span class="title" id="now-title">Title</span>
+                    <span id="now-artist">Artist</span>
+                    <span class="progress hidden">
+                        <span class="elapsed" id="now-elapsed">00:00</span>
+                        <progress id="now-progress"></progress>
+                        <span class="duration" id="now-duration">00:00</span>
+                    </span>
+                </div>
+            </div>
+
+            <div id="playing-next" class="chip hidden song compact no-background">
+                <img src="/assets/icon-300.png" alt="" id="next-art" />
+                <div class="info">
+                    <span class="subtitle">Up next:</span>
+                    <span class="title" id="next-title">Title</span>
+                    <span class="moreinfo"><span id="next-artist">Artist</span><div id="next-until">in four minutes</div></span>
+                </div>
+            </div>
+
+            <div id="history-wrapper" class="hidden">
+                <h2>History</h2>
+                <div id="history">
+                    <div class="chip song compact no-background">
+                        <img src="/assets/icon-300.png" alt="" class="art" />
+                        <div class="info">
+                            <span class="subtitle">Now playing:</span>
+                            <span class="title">Title</span>
+                            <span class="moreinfo"><span class="artist">Artist</span><span class="until">four minutes ago</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside id="requests">
+            <h2>Requests</h2>
+            <p>Slightly borked will fix tomorrow (2023-10-26)</p>
+            <div class="search">
+                <input type="text" id="requests_search" placeholder="Search" />
+                <button onclick="searchRequests(document.getElementById('requests_search').value)" type="submit"><i class="fa-fw fa-solid fa-search"></i></button>
+            </div>
+            <div class="chip hidden" id="request-error"></div>
+            <div id="requests-list">
+                <div class="chip">Seems like this station doesnt support song requests.</div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="spaghetticode.js"></script>
+</body>
+</html>
