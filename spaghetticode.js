@@ -135,8 +135,13 @@ volume.addEventListener("input", function() {
     localStorage.setItem("volume", this.value * 100);
 });
 
-precise_volume.addEventListener("input", _=>{
-    setVolume(this.value);
+precise_volume.addEventListener("input", function() {
+    player.volume = this.value / 100;
+    volume.value = this.value / 100;
+
+    updateMuteButtonIcon();
+
+    localStorage.setItem("volume", this.value);
 });
 
 setVolume(parseInt(localStorage.getItem("volume")));
@@ -608,7 +613,27 @@ const incrementTime = _ => {
     now_elapsed.innerText = formatTime(elapsed);
 }
 
+let noise = document.createElement("audio");
+noise.id = "noise";
+noise.src = "/assets/noise.wav";
+noise.loop = true;
 
+// if the stream buffers, fade in "assets/noise.wav"
+player.addEventListener("waiting", function() {
+    noise.volume = 0;
+    noise.play();
+    let fade = setInterval(function() {
+        noise.volume += 0.001;
+        if (noise.volume >= 0.5) clearInterval(fade);
+    }, 10);
+});
+
+// if the stream starts playing, cut out "assets/noise.wav"
+player.addEventListener("playing", function() {
+    noise.pause();
+    noise.currentTime = 0;
+    noise.volume = 0;
+});
 
 updateTunerList();
 setInterval(incrementTime, 1000);

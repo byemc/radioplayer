@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>radio player</title>
-    <link rel="icon" type="image/svg+xml" href="https://byemc.xyz/favicon.svg">
-    <link rel="stylesheet" href="/base.css">
+    <link rel="icon" type="image/svg+xml" href="https://byemc.xyz/favicon.svg" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="/base.css" />
     <script src="/scripts/icecast-metadata-stats.js"></script>
 </head>
 <body>
@@ -38,9 +39,10 @@
                 <div id="station-info">Use the tuner below to listen!</div>
             </div>
             <div id="selector">
+               <details open>
+                <summary><h3 style="display: inline;">Tuner</h3></summary>
                 <div class="inputs">
 
-                    <h3>Tuner</h3>
 
                     <label for="stream_type">Stream type</label>
                     <select name="stream_type" id="stream_type">
@@ -73,6 +75,7 @@
                         </div>
                     </details>
                 </div>
+               </details>
             </div>
         </div>
         <main>
