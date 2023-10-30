@@ -116,7 +116,10 @@ toggle_mute.addEventListener("click", function() {
 
 if (localStorage.getItem("muted") == "true") toggle_mute.click();
 
-function setVolume (new_volume=50) {
+function setVolume (new_volume=100) {
+    if (isNaN(new_volume)) {
+        new_volume = 100;
+    }
     console.log(new_volume)
     player.volume = new_volume / 100;
     precise_volume.value = new_volume;
@@ -620,20 +623,34 @@ noise.loop = true;
 
 // if the stream buffers, fade in "assets/noise.wav"
 player.addEventListener("waiting", function() {
-    noise.volume = 0;
+    console.log("waiting");
     noise.play();
+    noise.volume = 0;
     let fade = setInterval(function() {
         noise.volume += 0.001;
-        if (noise.volume >= 0.5) clearInterval(fade);
+        if (noise.volume >= (0.75)) clearInterval(fade);
+    }, 10);
+});
+// check for other types of buffering
+player.addEventListener("stalled", function() {
+    console.log("stalled");
+    noise.play();
+    noise.volume = 0;
+    let fade = setInterval(function() {
+        noise.volume += 0.001;
+        if (noise.volume >= (0.75)) clearInterval(fade);
     }, 10);
 });
 
+
 // if the stream starts playing, cut out "assets/noise.wav"
 player.addEventListener("playing", function() {
+    console.log("playing");
     noise.pause();
     noise.currentTime = 0;
     noise.volume = 0;
 });
+
 
 updateTunerList();
 setInterval(incrementTime, 1000);
