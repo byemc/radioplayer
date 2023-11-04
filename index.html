@@ -8,6 +8,7 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="/base.css" />
     <script src="/scripts/icecast-metadata-stats.js"></script>
+    <script src="/scripts/detect.js"></script>
 </head>
 <body>
     <header>
@@ -20,6 +21,7 @@
             <div class="player">
                 <audio id="player">
                     <source id="stream">
+                    <source src="/assets/noise.wav" type="audio/wav">
                     Your browser does not support the audio element. Please upgrade your browser.
                 </audio>
 

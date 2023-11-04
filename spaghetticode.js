@@ -52,6 +52,47 @@ const sources = document.getElementById("sources");
 const history = document.getElementById("history");
 const history_wrapper = document.getElementById("history-wrapper");
 
+var ua = detect.parse(navigator.userAgent);
+
+if (ua.browser.family == "Safari" || ua.browser.family == "Mobile Safari") {
+    let noise = null;
+} else {
+    let noise = document.createElement("audio");
+    noise.id = "noise";
+    noise.src = "/assets/noise.wav";
+    noise.loop = true;
+    
+    // if the stream buffers, fade in "assets/noise.wav"
+    player.addEventListener("waiting", function() {
+        console.log("waiting");
+        noise.play();
+        noise.volume = 0;
+        let fade = setInterval(function() {
+            noise.volume += 0.001;
+            if (noise.volume >= (0.75)) clearInterval(fade);
+        }, 10);
+    });
+    // check for other types of buffering
+    player.addEventListener("stalled", function() {
+        console.log("stalled");
+        noise.play();
+        noise.volume = 0;
+        let fade = setInterval(function() {
+            noise.volume += 0.001;
+            if (noise.volume >= (0.75)) clearInterval(fade);
+        }, 10);
+    });
+    // if the stream starts playing, cut out "assets/noise.wav"
+    player.addEventListener("playing", function() {
+        console.log("playing");
+        noise.pause();
+        noise.currentTime = 0;
+        noise.volume = 0;
+    });
+
+}
+
+
 play_pause.addEventListener("click", function() {
     if (player.paused) {
         player.load();
@@ -276,6 +317,8 @@ const updateNowPlayingIcecast = _ => {
     statsListener.start();
 }
 
+
+
 const updateHistoryListAzuracast = async (data) => {
     // np request has already been made
     let historyList = data.song_history;
@@ -288,14 +331,16 @@ const updateHistoryListAzuracast = async (data) => {
         let finishTime = (song.played_at + song.duration) * 1000;
         let now = new Date();
         let timeSinceThen = (now - finishTime) / 1000 / 60; //minutes
-
+        let additional = "";
+        if (song.is_request) additional = " (request)";
+        
         let chip = document.createElement("div");
         chip.classList = "chip song no-background compact";
         chip.innerHTML = `
         <img src="${song.song.art}" class="art" />
         <div class="info">
             <span class="title">${song.song.title}</span>
-            <span class="moreinfo><span class="artist">${song.song.artist}</span><span class="subtitle">${relativeTime.format(Math.floor(-timeSinceThen), "minute")}</span></span>
+            <span class="moreinfo><span class="artist">${song.song.artist} ${additional}</span><span class="subtitle">${relativeTime.format(Math.floor(-timeSinceThen), "minute")}</span></span>
         </div>`
         
         history.appendChild(chip);
@@ -323,8 +368,12 @@ const updateNowPlaying = async _ => {
 
         updateHistoryListAzuracast(np);
 
+        let artist = np.now_playing.song.artist;
+        if (np.now_playing.is_request) artist += " (request)";
+        if (np.now_playing.is_request) console.log("request");
+
         now_title.innerText = np.now_playing.song.title;
-        now_artist.innerText = np.now_playing.song.artist;
+        now_artist.innerText = artist;
         now_art.src = np.now_playing.song.art;
 
         let elapsed = np.now_playing.elapsed;
@@ -338,12 +387,13 @@ const updateNowPlaying = async _ => {
 
         next_title.innerText = np.playing_next.song.title;
         next_artist.innerText = np.playing_next.song.artist;
+        if (np.playing_next.is_request) next_artist.innerText += " (request)";
         next_art.src = np.playing_next.song.art;
 
         let until = Math.floor(((Date.now() / 1000) - (np.playing_next.played_at)) / 60);
         next_until.innerText = relativeTime.format(-until, 'minutes');
 
-        updateMetadataApi(np.now_playing.song.title, np.now_playing.song.artist, station_name.innerText, np.now_playing.song.art, elapsed, duration);
+        updateMetadataApi(np.now_playing.song.title, artist, station_name.innerText, np.now_playing.song.art, elapsed, duration);
     }
 }
 
@@ -592,6 +642,9 @@ player.addEventListener("play", function() {
     // update aria labels
     play_pause.setAttribute("aria-label", "Pause");
     play_pause.setAttribute("title", "Pause");
+
+    // update media session
+    navigator.mediaSession.playbackState = "playing";
 });
 
 player.addEventListener("pause", function() {
@@ -599,6 +652,9 @@ player.addEventListener("pause", function() {
     play_pause.children[0].classList.add("fa-play");
     play_pause.setAttribute("aria-label", "Play");
     play_pause.setAttribute("title", "Play");
+
+    // update media session
+    navigator.mediaSession.playbackState = "paused";
 });
 
 const unformatTime = (time) => {
@@ -615,41 +671,6 @@ const incrementTime = _ => {
     now_progress.value = elapsed;
     now_elapsed.innerText = formatTime(elapsed);
 }
-
-let noise = document.createElement("audio");
-noise.id = "noise";
-noise.src = "/assets/noise.wav";
-noise.loop = true;
-
-// if the stream buffers, fade in "assets/noise.wav"
-player.addEventListener("waiting", function() {
-    console.log("waiting");
-    noise.play();
-    noise.volume = 0;
-    let fade = setInterval(function() {
-        noise.volume += 0.001;
-        if (noise.volume >= (0.75)) clearInterval(fade);
-    }, 10);
-});
-// check for other types of buffering
-player.addEventListener("stalled", function() {
-    console.log("stalled");
-    noise.play();
-    noise.volume = 0;
-    let fade = setInterval(function() {
-        noise.volume += 0.001;
-        if (noise.volume >= (0.75)) clearInterval(fade);
-    }, 10);
-});
-
-
-// if the stream starts playing, cut out "assets/noise.wav"
-player.addEventListener("playing", function() {
-    console.log("playing");
-    noise.pause();
-    noise.currentTime = 0;
-    noise.volume = 0;
-});
 
 
 updateTunerList();
