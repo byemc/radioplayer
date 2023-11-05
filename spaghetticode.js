@@ -369,10 +369,16 @@ const updateNowPlaying = async _ => {
         updateHistoryListAzuracast(np);
 
         let artist = np.now_playing.song.artist;
+        let title = np.now_playing.song.title;
         if (np.now_playing.is_request) artist += " (request)";
         if (np.now_playing.is_request) console.log("request");
 
-        now_title.innerText = np.now_playing.song.title;
+        if (np.live.is_live) {
+            title = `${artist} - ${title}`;
+            artist = np.live.streamer_name + " (LIVE)";
+        }
+
+        now_title.innerText = title;
         now_artist.innerText = artist;
         now_art.src = np.now_playing.song.art;
 
@@ -393,7 +399,7 @@ const updateNowPlaying = async _ => {
         let until = Math.floor(((Date.now() / 1000) - (np.playing_next.played_at)) / 60);
         next_until.innerText = relativeTime.format(-until, 'minutes');
 
-        updateMetadataApi(np.now_playing.song.title, artist, station_name.innerText, np.now_playing.song.art, elapsed, duration);
+        updateMetadataApi(title, artist, station_name.innerText, np.now_playing.song.art, elapsed, duration);
     }
 }
 
